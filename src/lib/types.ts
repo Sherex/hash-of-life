@@ -5,7 +5,7 @@ export interface GameOfLifeRule {
 }
 
 export interface GameOfLifeOptions {
-  rule: string
+  rule?: string
   grid: number[][]
 }
 

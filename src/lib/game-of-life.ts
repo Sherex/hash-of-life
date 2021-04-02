@@ -24,7 +24,7 @@ export class GameOfLife {
   grid: types.GridCell[][]
   newGrid: types.GridCell[][]
   constructor (options: types.GameOfLifeOptions) {
-    this.rule = parseGameOfLifeRule(options.rule)
+    this.rule = parseGameOfLifeRule(options.rule ?? 'B3/S23')
     this.grid = cloneDeep(options.grid)
     this.newGrid = cloneDeep(options.grid)
   }
