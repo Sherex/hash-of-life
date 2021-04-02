@@ -5,7 +5,8 @@
     "target": "es6",
     "moduleResolution": "node",
     "outDir": "dist",
-    "strict": true
+    "strict": true,
+    "sourceMap": false
   },
   "include": [
     "src/"
