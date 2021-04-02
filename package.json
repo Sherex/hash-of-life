@@ -1,0 +1,33 @@
+{
+  "name": "hashoflife",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Checking if Conway's game of life can be used as a hashing algorithm.",
+  "main": "dist/index.js",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "dev": "ts-node src/",
+    "lint": "eslint src/",
+    "lint:fix": "eslint --fix src/",
+    "test": "npm run lint"
+  },
+  "keywords": [],
+  "author": "Ingar Helgesen (https://github.com/Sherex)",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "14.14.37",
+    "@typescript-eslint/eslint-plugin": "4.20.0",
+    "eslint": "7.23.0",
+    "eslint-config-standard-with-typescript": "20.0.0",
+    "eslint-plugin-import": "2.22.1",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-promise": "4.3.1",
+    "eslint-plugin-standard": "4.1.0",
+    "ts-node": "9.1.1",
+    "typescript": "4.2.3"
+  }
+}
