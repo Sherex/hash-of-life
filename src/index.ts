@@ -66,6 +66,12 @@ export class GameOfLife {
   }
 
   getCell ({ x, y }: Position): GridCell | undefined {
+    const gridWidth = this.grid[0].length
+    const gridHeight = this.grid.length
+    if (x < 0) x = gridWidth + x
+    if (y < 0) y = gridHeight + y
+    if (x > gridWidth - 1) x = x % gridWidth
+    if (y > gridHeight - 1) y = y % gridHeight
     return this.grid[y]?.[x]
   }
 
@@ -129,11 +135,11 @@ export class GameOfLife {
 const gol = new GameOfLife({
   rule: 'B3/S23',
   grid: [
+    [0, 1, 0, 0, 0],
     [0, 0, 1, 0, 0],
-    [0, 0, 1, 0, 0],
-    [0, 0, 1, 0, 0],
-    [0, 0, 1, 0, 0],
-    [0, 0, 1, 0, 0]
+    [1, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0]
   ]
 })
 
@@ -142,7 +148,7 @@ const gol = new GameOfLife({
     console.clear()
     gol.printGrid()
     gol.iterate()
-    await timeout(500)
+    await timeout(200)
   }
 })().catch(console.error)
 
