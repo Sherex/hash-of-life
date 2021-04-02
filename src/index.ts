@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash.clonedeep'
+
 interface GameOfLifeRule {
   type: 'life'
   born: number[]
@@ -9,7 +11,12 @@ interface GameOfLifeOptions {
   grid: number[][]
 }
 
-type GridCell = number | string
+interface GridCellStats {
+  neighboursAlive: number
+  neighboursDead: number
+}
+
+type GridCell = number
 
 function isGridCell (cell: any): cell is GridCell {
   return typeof cell === 'number'
@@ -43,9 +50,11 @@ export function parseGameOfLifeRule (str: string): GameOfLifeRule {
 export class GameOfLife {
   rule: GameOfLifeRule
   grid: GridCell[][]
+  newGrid: GridCell[][]
   constructor (options: GameOfLifeOptions) {
     this.rule = parseGameOfLifeRule(options.rule)
-    this.grid = options.grid
+    this.grid = cloneDeep(options.grid)
+    this.newGrid = cloneDeep(options.grid)
   }
 
   loopCells (eachRowCb: LoopCellsCallback): void {
@@ -58,6 +67,10 @@ export class GameOfLife {
 
   getCell ({ x, y }: Position): GridCell | undefined {
     return this.grid[y]?.[x]
+  }
+
+  setCell ({ x, y }: Position, newCell: GridCell): void {
+    this.newGrid[y][x] = newCell
   }
 
   getNeighbours ({ x, y }: Position): GridCell[] {
@@ -76,6 +89,21 @@ export class GameOfLife {
       .filter(isGridCell)
   }
 
+  cellStats (pos: Position): GridCellStats {
+    const result: GridCellStats = {
+      neighboursAlive: 0,
+      neighboursDead: 0
+    }
+
+    const neighbours = this.getNeighbours(pos)
+    neighbours.forEach(cell => {
+      if (cell === 1) result.neighboursAlive++
+      else result.neighboursDead++
+    })
+
+    return result
+  }
+
   printGrid (): void {
     const printBoard: string[] = []
     this.grid.forEach(row => {
@@ -84,18 +112,44 @@ export class GameOfLife {
     })
     console.log(printBoard.join('\n'))
   }
+
+  iterate (): void {
+    this.loopCells((cell, pos) => {
+      const stats = this.cellStats(pos)
+      if (cell === 0) {
+        if (this.rule.born.includes(stats.neighboursAlive)) this.setCell(pos, 1)
+      } else {
+        if (!this.rule.survival.includes(stats.neighboursAlive)) this.setCell(pos, 0)
+      }
+    })
+    this.grid = cloneDeep(this.newGrid)
+  }
 }
 
 const gol = new GameOfLife({
   rule: 'B3/S23',
   grid: [
-    [0, 0, 0, 0, 0],
     [0, 0, 1, 0, 0],
     [0, 0, 1, 0, 0],
     [0, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0]
+    [0, 0, 1, 0, 0],
+    [0, 0, 1, 0, 0]
   ]
 })
 
-console.log(gol.getNeighbours({ x: 2, y: 2 }))
-gol.printGrid()
+;(async () => {
+  while (true) {
+    console.clear()
+    gol.printGrid()
+    gol.iterate()
+    await timeout(500)
+  }
+})().catch(console.error)
+
+async function timeout (ms: number): Promise<void> {
+  return await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, ms)
+  })
+}
