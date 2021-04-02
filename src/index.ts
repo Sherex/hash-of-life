@@ -1,29 +1,24 @@
-import { GameOfLife } from './lib/game-of-life'
+import { HashOfLife } from './lib/hash-of-life'
 
-const gol = new GameOfLife({
-  rule: 'B3/S23',
-  grid: [
-    [0, 1, 0, 0, 0],
-    [0, 0, 1, 0, 0],
-    [1, 1, 1, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0]
-  ]
+const input = 'Hello world!'
+
+const hol = new HashOfLife({
+  data: Buffer.from(input),
+  size: 100,
+  iterations: 10
 })
 
+// const hash = hol.calculateHash()
+// console.log(hash)
+
 ;(async () => {
-  while (true) {
+  let i = 0
+  while (i++ < 11) {
     console.clear()
-    gol.printGrid()
-    gol.iterate()
-    await timeout(200)
+    console.log(`Input: "${input}"`)
+    hol.iterate()
+    const hash = hol.calculateHash(false)
+    console.log(`Output: "${hash}"`)
+    await new Promise((resolve) => setTimeout(resolve, 50))
   }
 })().catch(console.error)
-
-async function timeout (ms: number): Promise<void> {
-  return await new Promise((resolve) => {
-    setTimeout(() => {
-      resolve()
-    }, ms)
-  })
-}

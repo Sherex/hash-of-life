@@ -26,3 +26,10 @@ export interface Position {
 }
 
 export type LoopCellsCallback = (cell: GridCell, position: Position) => void
+
+export interface HashOfLifeOptions {
+  rule?: string
+  data: Buffer
+  size: number
+  iterations: number
+}
