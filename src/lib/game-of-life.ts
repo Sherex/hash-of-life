@@ -1,35 +1,7 @@
 import cloneDeep from 'lodash.clonedeep'
+import * as types from './types'
 
-interface GameOfLifeRule {
-  type: 'life'
-  born: number[]
-  survival: number[]
-}
-
-interface GameOfLifeOptions {
-  rule: string
-  grid: number[][]
-}
-
-interface GridCellStats {
-  neighboursAlive: number
-  neighboursDead: number
-}
-
-type GridCell = number
-
-function isGridCell (cell: any): cell is GridCell {
-  return typeof cell === 'number'
-}
-
-interface Position {
-  x: number
-  y: number
-}
-
-type LoopCellsCallback = (cell: GridCell, position: Position) => void
-
-export function parseGameOfLifeRule (str: string): GameOfLifeRule {
+export function parseGameOfLifeRule (str: string): types.GameOfLifeRule {
   const ruleRegex = /^B(?<born>[0-8]{0,8})\/S(?<survival>[0-8]{0,8})$/i
   const result = str.match(ruleRegex)
   if (result === null) throw new Error(`Invalid rule string, should match "${ruleRegex.source}"`)
@@ -48,16 +20,16 @@ export function parseGameOfLifeRule (str: string): GameOfLifeRule {
 }
 
 export class GameOfLife {
-  rule: GameOfLifeRule
-  grid: GridCell[][]
-  newGrid: GridCell[][]
-  constructor (options: GameOfLifeOptions) {
+  rule: types.GameOfLifeRule
+  grid: types.GridCell[][]
+  newGrid: types.GridCell[][]
+  constructor (options: types.GameOfLifeOptions) {
     this.rule = parseGameOfLifeRule(options.rule)
     this.grid = cloneDeep(options.grid)
     this.newGrid = cloneDeep(options.grid)
   }
 
-  loopCells (eachRowCb: LoopCellsCallback): void {
+  loopCells (eachRowCb: types.LoopCellsCallback): void {
     this.grid.forEach((row, y) => {
       row.forEach((cell, x) => {
         eachRowCb(cell, { x: x, y: y })
@@ -65,7 +37,7 @@ export class GameOfLife {
     })
   }
 
-  getCell ({ x, y }: Position): GridCell | undefined {
+  getCell ({ x, y }: types.Position): types.GridCell | undefined {
     const gridWidth = this.grid[0].length
     const gridHeight = this.grid.length
     if (x < 0) x = gridWidth + x
@@ -75,11 +47,11 @@ export class GameOfLife {
     return this.grid[y]?.[x]
   }
 
-  setCell ({ x, y }: Position, newCell: GridCell): void {
+  setCell ({ x, y }: types.Position, newCell: types.GridCell): void {
     this.newGrid[y][x] = newCell
   }
 
-  getNeighbours ({ x, y }: Position): GridCell[] {
+  getNeighbours ({ x, y }: types.Position): types.GridCell[] {
     const neighbours = [
       { x: x - 1, y: y + 1 },
       { x: x, y: y + 1 },
@@ -92,11 +64,11 @@ export class GameOfLife {
     ]
     return neighbours
       .map(cell => this.getCell({ x: cell.x, y: cell.y }))
-      .filter(isGridCell)
+      .filter(types.isGridCell)
   }
 
-  cellStats (pos: Position): GridCellStats {
-    const result: GridCellStats = {
+  cellStats (pos: types.Position): types.GridCellStats {
+    const result: types.GridCellStats = {
       neighboursAlive: 0,
       neighboursDead: 0
     }
@@ -130,32 +102,4 @@ export class GameOfLife {
     })
     this.grid = cloneDeep(this.newGrid)
   }
-}
-
-const gol = new GameOfLife({
-  rule: 'B3/S23',
-  grid: [
-    [0, 1, 0, 0, 0],
-    [0, 0, 1, 0, 0],
-    [1, 1, 1, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0]
-  ]
-})
-
-;(async () => {
-  while (true) {
-    console.clear()
-    gol.printGrid()
-    gol.iterate()
-    await timeout(200)
-  }
-})().catch(console.error)
-
-async function timeout (ms: number): Promise<void> {
-  return await new Promise((resolve) => {
-    setTimeout(() => {
-      resolve()
-    }, ms)
-  })
 }
